@@ -224,9 +224,20 @@ namespace LobsterGopher
             yield return ReturnLink(item.Url, item.Title);
             yield return new GopherItem()
             {
-                DisplayString = String.Format("by {0} {1} | {2} points | {3} comments | {4}",
-                    item.User.Username, item.Created, item.Score, item.CommentCount, String.Join(", ", item.Tags))
+                DisplayString = String.Format("by {0} {1} | {2} points | {3} comments",
+                    item.User.Username, item.Created, item.Score, item.CommentCount)
             };
+            foreach (string t in item.Tags)
+            {
+                yield return new GopherItem()
+                {
+                    DisplayString = t,
+                    ItemType = '1',
+                    Hostname = Hostname,
+                    Port = Port,
+                    Selector = String.Format("/t/{0}", t)
+                };
+            }
             yield return new GopherItem();
             yield return new GopherItem()
             {
