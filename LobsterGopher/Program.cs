@@ -85,6 +85,14 @@ namespace LobsterGopher
                     });
                     items.Add(new GopherItem()
                     {
+                        DisplayString = "Tag list",
+                        Selector = "/tags",
+                        ItemType = '1',
+                        Hostname = Hostname,
+                        Port = Port
+                    });
+                    items.Add(new GopherItem()
+                    {
                         DisplayString = "by lobsters /u/calvin"
                     });
                 }
@@ -95,6 +103,10 @@ namespace LobsterGopher
                 else if (path == "/newest")
                 {
                     items.AddRange(GetListing("newest"));
+                }
+                else if (path == "/tags")
+                {
+                    items.AddRange(GetTagListing());
                 }
                 else if (path.StartsWith("/t/") || path.StartsWith("/t\t"))
                 {
@@ -153,6 +165,39 @@ namespace LobsterGopher
                 };
                 // Spacer
                 yield return new GopherItem();
+            }
+        }
+
+        static IEnumerable<GopherItem> GetTagListing()
+        {
+            string json = null;
+            try
+            {
+                json = wc.DownloadString("https://lobste.rs/tags.json");
+            }
+            catch (WebException)
+            {
+                // HACK: you can't yield in try/catch blocks, so we have to do all this ugliness
+                // handle in next
+            }
+            if (json == null)
+            {
+                yield return ReturnError("invalid request");
+                yield break;
+            }
+
+            var items = JsonConvert.DeserializeObject<List<LobstersTag>>(json);
+            foreach (var i in items)
+            {
+                // Meta
+                yield return new GopherItem()
+                {
+                    DisplayString = i.Description,
+                    ItemType = '1',
+                    Hostname = Hostname,
+                    Port = Port,
+                    Selector = String.Format("/t/{0}", i.Name)
+                };
             }
         }
 

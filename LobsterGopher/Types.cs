@@ -109,4 +109,31 @@ commenting_user
         [JsonProperty("url")]
         public string Url { get; set; }
     }
+
+    public class LobstersTag
+    {
+        /*
+         * { id: 6,
+    tag: 'php',
+    description: 'PHP programming',
+    privileged: false,
+    is_media: false,
+    inactive: false,
+    hotness_mod: 0 },
+         */
+        [JsonProperty("id")]
+        public int Id { get; set; }
+        [JsonProperty("tag")]
+        public string Name { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("privileged")]
+        public bool Privileged { get; set; }
+        [JsonProperty("is_media")]
+        public bool Media { get; set; }
+        [JsonProperty("inactive")]
+        public bool Inactive { get; set; }
+        [JsonProperty("hotness_mod")]
+        public float HotnessModifier { get; set; }
+    }
 }
