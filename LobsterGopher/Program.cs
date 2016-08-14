@@ -46,9 +46,9 @@ namespace LobsterGopher
                 new Thread(new ParameterizedThreadStart(ServerHandler)).Start(Listener.AcceptTcpClient());
         }
 
-        static int GetIndentation(int level)
+        static int GetIndentation(int? level)
         {
-            return (level - 1) * 2;
+            return (level ?? 1 - 1) * 2;
         }
 
         static void ServerHandler(Object obj)
@@ -121,6 +121,10 @@ namespace LobsterGopher
                 else if (path.StartsWith("/u/") || path.StartsWith("/u\t"))
                 {
                     items.AddRange(GetUser(path.Remove(0, 3).Trim()));
+                }
+                else if (path.StartsWith("/c/") || path.StartsWith("/c\t"))
+                {
+                    items.AddRange(GetComment(path.Remove(0, 3).Trim()));
                 }
                 else
                 {
@@ -219,7 +223,6 @@ namespace LobsterGopher
                 yield return ReturnError("invalid request");
                 yield break;
             }
-            //string json = wc.DownloadString(String.Format("https://lobste.rs/s/{0}.json", short_id));
             var item = JsonConvert.DeserializeObject<LobstersItem>(json);
 
             // Story Link & Metadata
@@ -263,8 +266,15 @@ namespace LobsterGopher
                     Hostname = Hostname,
                     Port = Port
                 };
-                yield return ReturnLink(i.Url, String.Format("{0} | {1} points",
-                        (i.Updated > i.Created) ? i.Updated : i.Created, i.Score));
+                yield return new GopherItem()
+                {
+                    DisplayString = String.Format("{0} | {1} points",
+                        (i.Updated > i.Created) ? i.Updated : i.Created, i.Score),
+                    ItemType = '1',
+                    Selector = String.Format("/c/{0}", i.ShortId),
+                    Hostname = Hostname,
+                    Port = Port
+                };
                 // Text, indented with a limit
                 foreach (var l in
                     Regex.Split(WordWrap.Wrap(Html.ConvertHtml(i.Comment),
@@ -278,6 +288,47 @@ namespace LobsterGopher
                 }
                 // Spacer
                 yield return new GopherItem();
+            }
+        }
+
+        public static IEnumerable<GopherItem> GetComment (string short_id)
+        {
+            string json = null;
+            try
+            {
+                json = wc.DownloadString(String.Format("https://lobste.rs/c/{0}.json", short_id));
+            }
+            catch (WebException)
+            {
+                // handle in next
+            }
+            if (json == null)
+            {
+                yield return ReturnError("invalid request");
+                yield break;
+            }
+            var item = JsonConvert.DeserializeObject<LobstersComment>(json);
+
+            yield return new GopherItem()
+            {
+                DisplayString = String.Format("posted by {0}", item.User.Username),
+                ItemType = '1',
+                Selector = String.Format("/u/{0}", item.User.Username),
+                Hostname = Hostname,
+                Port = Port
+            };
+            yield return ReturnLink(item.Url, String.Format("{0} | {1} points",
+                    (item.Updated > item.Created) ? item.Updated : item.Created, item.Score));
+            // Text, indented root limit (we're viewing standalone
+            foreach (var l in
+                Regex.Split(WordWrap.Wrap(Html.ConvertHtml(item.Comment),
+                    Columns - GetIndentation(1)), "\r?\n"))
+            {
+                yield return new GopherItem()
+                {
+                    // pad functions only pad if the string isn't long enough, so make it so
+                    DisplayString = l.PadLeft(GetIndentation(item.IndentLevel) + l.Length)
+                };
             }
         }
 

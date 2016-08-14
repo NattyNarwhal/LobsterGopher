@@ -98,8 +98,9 @@ commenting_user
         public bool IsDeleted { get; set; }
         [JsonProperty("is_moderated")]
         public bool IsModerated { get; set; }
+        // ident can be null when viewed as a standalone comment
         [JsonProperty("indent_level")]
-        public int IndentLevel { get; set; }
+        public int? IndentLevel { get; set; }
         [JsonProperty("commenting_user")]
         public LobstersUser User { get; set; }
         [JsonProperty("created_at")]
