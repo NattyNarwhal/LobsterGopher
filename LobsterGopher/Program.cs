@@ -12,6 +12,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Net.Cache;
 
 namespace LobsterGopher
 {
@@ -37,6 +38,7 @@ namespace LobsterGopher
             //wc.Proxy = new WebProxy("127.0.0.1", 8123) {  };
 #endif
             wc.Headers.Add("user-agent", "LobstersGopherProxy/0.0 (u/calvin)");
+            wc.CachePolicy = new RequestCachePolicy(System.Net.Cache.RequestCacheLevel.CacheIfAvailable);
 
             Listener.Start();
 
