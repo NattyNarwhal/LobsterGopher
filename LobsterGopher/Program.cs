@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Net.Cache;
+using Mono.Options;
 
 namespace LobsterGopher
 {
@@ -28,10 +29,19 @@ namespace LobsterGopher
 
         static void Main(string[] args)
         {
-            if (args.Length == 2)
+            try
             {
-                Hostname = args[0];
-                Port = int.Parse(args[1]);
+                var p = new OptionSet() {
+                { "h|host=", "the server's hostname", v => Hostname = v },
+                { "p|port=", "the server's port", v => Port = int.Parse(v) },
+                { "P|proxy=", "a proxy to talk to", v => wc.Proxy = new WebProxy(v) }
+                };
+
+                p.Parse(args);
+            }
+            catch (OptionException)
+            {
+                // TODO
             }
 
             wc.Headers.Add("user-agent", "LobstersGopherProxy/0.0 (u/calvin)");
@@ -289,7 +299,7 @@ namespace LobsterGopher
             }
         }
 
-        public static IEnumerable<GopherItem> GetComment (string short_id)
+        public static IEnumerable<GopherItem> GetComment(string short_id)
         {
             string json = null;
             try
@@ -373,13 +383,13 @@ namespace LobsterGopher
         {
             // Overbite surpresses URL: links if they don't link to valid servers
             return new GopherItem()
-                {
-                    DisplayString = message,
-                    ItemType = 'h',
-                    Hostname = Hostname,
-                    Port = Port,
-                    Selector = "URL:" + uri
-                };
+            {
+                DisplayString = message,
+                ItemType = 'h',
+                Hostname = Hostname,
+                Port = Port,
+                Selector = "URL:" + uri
+            };
         }
 
         static GopherItem ReturnError(string message)
