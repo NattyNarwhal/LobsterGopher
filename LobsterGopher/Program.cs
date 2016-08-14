@@ -18,14 +18,8 @@ namespace LobsterGopher
 {
     class Program
     {
-#if DEBUG
         static string Hostname = "127.0.0.1";
         static int Port = 70;
-#else
-        static string Hostname = "127.0.0.1";
-        static int Port = 70;
-#endif
-
 
         static int Columns = 72;
 
@@ -34,11 +28,14 @@ namespace LobsterGopher
 
         static void Main(string[] args)
         {
-#if !DEBUG
-            //wc.Proxy = new WebProxy("127.0.0.1", 8123) {  };
-#endif
+            if (args.Length == 2)
+            {
+                Hostname = args[0];
+                Port = int.Parse(args[1]);
+            }
+
             wc.Headers.Add("user-agent", "LobstersGopherProxy/0.0 (u/calvin)");
-            wc.CachePolicy = new RequestCachePolicy(System.Net.Cache.RequestCacheLevel.CacheIfAvailable);
+            wc.CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable);
             wc.Encoding = Encoding.UTF8;
 
             Listener.Start();
