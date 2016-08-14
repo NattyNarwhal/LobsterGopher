@@ -39,6 +39,7 @@ namespace LobsterGopher
 #endif
             wc.Headers.Add("user-agent", "LobstersGopherProxy/0.0 (u/calvin)");
             wc.CachePolicy = new RequestCachePolicy(System.Net.Cache.RequestCacheLevel.CacheIfAvailable);
+            wc.Encoding = Encoding.UTF8;
 
             Listener.Start();
 
