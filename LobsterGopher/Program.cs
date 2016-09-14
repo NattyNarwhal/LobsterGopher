@@ -263,6 +263,20 @@ namespace LobsterGopher
             yield return ReturnLink(item.CommentsUrl, "View on lobste.rs (WWW)");
             yield return new GopherItem();
 
+            if (!string.IsNullOrWhiteSpace(item.Description))
+            {
+                foreach (var l in
+                    Regex.Split(WordWrap.Wrap(Html.ConvertHtml(item.Description),
+                        Columns), "\r?\n"))
+                {
+                    yield return new GopherItem()
+                    {
+                        DisplayString = l
+                    };
+                }
+                yield return new GopherItem();
+            }
+
             // Comments
             foreach (var i in item.Comments)
             {
