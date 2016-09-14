@@ -282,16 +282,8 @@ namespace LobsterGopher
             {
                 yield return new GopherItem()
                 {
-                    DisplayString = String.Format("posted by {0}", i.User.Username),
-                    ItemType = '1',
-                    Selector = String.Format("/u/{0}", i.User.Username),
-                    Hostname = Hostname,
-                    Port = Port
-                };
-                yield return new GopherItem()
-                {
-                    DisplayString = String.Format("{0} | {1} points",
-                        (i.Updated > i.Created) ? i.Updated : i.Created, i.Score),
+                    DisplayString = String.Format("{0} | {1} points | posted by {2}",
+                        (i.Updated > i.Created) ? i.Updated : i.Created, i.Score, i.User.Username),
                     ItemType = '1',
                     Selector = String.Format("/c/{0}", i.ShortId),
                     Hostname = Hostname,
